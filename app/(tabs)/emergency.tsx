@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Linking,ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Phone, MapPin, Users, Shield, CircleAlert as AlertCircle, Clock, Zap } from 'lucide-react-native';
 
@@ -11,7 +11,46 @@ interface EmergencyContact {
   available247: boolean;
 }
 
-const emergencyContacts: EmergencyContact[] = [
+// const emergencyContacts: EmergencyContact[] = [
+//   {
+//     id: '1',
+//     name: 'Police Emergency',
+//     number: '100',
+//     type: 'police',
+//     available247: true
+//   },
+//   {
+//     id: '2',
+//     name: 'Medical Emergency',
+//     number: '108',
+//     type: 'medical',
+//     available247: true
+//   },
+//   {
+//     id: '3',
+//     name: 'Fire Department',
+//     number: '101',
+//     type: 'fire',
+//     available247: true
+//   },
+//   {
+//     id: '4',
+//     name: 'Tourist Helpline',
+//     number: '1363',
+//     type: 'tourism',
+//     available247: true
+//   }
+// ];
+
+// export default function EmergencyScreen() {
+//   const [panicMode, setPanicMode] = useState(false);
+//   const [locationSharing, setLocationSharing] = useState(false);
+//   const [emergencyContacts, setEmergencyContacts] = useState([
+//     'Mom - +91 98765 43210',
+//     'Dad - +91 98765 43211'
+//   ]);
+// keep this for official services
+const emergencyServices: EmergencyContact[] = [
   {
     id: '1',
     name: 'Police Emergency',
@@ -45,10 +84,13 @@ const emergencyContacts: EmergencyContact[] = [
 export default function EmergencyScreen() {
   const [panicMode, setPanicMode] = useState(false);
   const [locationSharing, setLocationSharing] = useState(false);
-  const [emergencyContacts, setEmergencyContacts] = useState([
+
+  // renamed this to personalContacts
+  const [personalContacts, setPersonalContacts] = useState([
     'Mom - +91 98765 43210',
     'Dad - +91 98765 43211'
   ]);
+
 
   const handlePanicButton = () => {
     Alert.alert(
@@ -116,134 +158,136 @@ export default function EmergencyScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Emergency Center</Text>
-        <Text style={styles.headerSubtitle}>Quick access to emergency services</Text>
-      </View>
-
-      {/* Panic Button */}
-      <View style={styles.panicSection}>
-        <TouchableOpacity
-          style={[styles.panicButton, panicMode && styles.panicButtonActive]}
-          onPress={handlePanicButton}
-          disabled={panicMode}
-        >
-          <View style={styles.panicButtonInner}>
-            <AlertCircle size={40} color="#FFFFFF" />
-            <Text style={styles.panicButtonText}>
-              {panicMode ? 'EMERGENCY ACTIVE' : 'SOS PANIC'}
-            </Text>
-            <Text style={styles.panicButtonSubtext}>
-              {panicMode ? 'Help is coming...' : 'Tap to alert authorities'}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        {panicMode && (
-          <View style={styles.panicStatus}>
-            <Clock size={16} color="#EF4444" />
-            <Text style={styles.panicStatusText}>Emergency services notified</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Quick Actions */}
-      <View style={styles.quickActionsSection}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionGrid}>
-          <TouchableOpacity style={styles.actionButton} onPress={shareLocation}>
-            <MapPin size={24} color={locationSharing ? "#10B981" : "#6B7280"} />
-            <Text style={[styles.actionText, locationSharing && { color: '#10B981' }]}>
-              {locationSharing ? 'Stop Sharing' : 'Share Location'}
-            </Text>
-            <Text style={styles.actionSubtext}>
-              {locationSharing ? 'Active' : 'With contacts'}
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton}>
-            <Users size={24} color="#4F46E5" />
-            <Text style={styles.actionText}>Find Help</Text>
-            <Text style={styles.actionSubtext}>Nearby assistance</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton}>
-            <Shield size={24} color="#F59E0B" />
-            <Text style={styles.actionText}>Safe Mode</Text>
-            <Text style={styles.actionSubtext}>Enhanced tracking</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton}>
-            <Phone size={24} color="#EF4444" />
-            <Text style={styles.actionText}>Add Contact</Text>
-            <Text style={styles.actionSubtext}>Emergency contact</Text>
-          </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Emergency Center</Text>
+          <Text style={styles.headerSubtitle}>Quick access to emergency services</Text>
         </View>
-      </View>
 
-      {/* Emergency Contacts */}
-      <View style={styles.contactsSection}>
-        <Text style={styles.sectionTitle}>Emergency Services</Text>
-        {emergencyContacts.map((contact) => (
+        {/* Panic Button */}
+        <View style={styles.panicSection}>
           <TouchableOpacity
-            key={contact.id}
-            style={styles.contactCard}
-            onPress={() => handleEmergencyCall(contact)}
+            style={[styles.panicButton, panicMode && styles.panicButtonActive]}
+            onPress={handlePanicButton}
+            disabled={panicMode}
           >
-            <View style={styles.contactIcon}>
-              {getContactIcon(contact.type)}
+            <View style={styles.panicButtonInner}>
+              <AlertCircle size={40} color="#FFFFFF" />
+              <Text style={styles.panicButtonText}>
+                {panicMode ? 'EMERGENCY ACTIVE' : 'SOS PANIC'}
+              </Text>
+              <Text style={styles.panicButtonSubtext}>
+                {panicMode ? 'Help is coming...' : 'Tap to alert authorities'}
+              </Text>
             </View>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactName}>{contact.name}</Text>
-              <View style={styles.contactDetails}>
-                <Text style={styles.contactNumber}>{contact.number}</Text>
-                {contact.available247 && (
-                  <View style={styles.availableBadge}>
-                    <Text style={styles.availableText}>24/7</Text>
-                  </View>
-                )}
-              </View>
-            </View>
-            <Phone size={20} color="#4F46E5" />
           </TouchableOpacity>
-        ))}
-      </View>
+          {panicMode && (
+            <View style={styles.panicStatus}>
+              <Clock size={16} color="#EF4444" />
+              <Text style={styles.panicStatusText}>Emergency services notified</Text>
+            </View>
+          )}
+        </View>
 
-      {/* Personal Emergency Contacts */}
-      <View style={styles.personalContactsSection}>
-        <Text style={styles.sectionTitle}>Personal Contacts</Text>
-        {emergencyContacts.map((contact, index) => (
-          <View key={index} style={styles.personalContactCard}>
-            <Users size={16} color="#6B7280" />
-            <Text style={styles.personalContactText}>{contact}</Text>
-          </View>
-        ))}
-        <TouchableOpacity style={styles.addContactButton}>
-          <Text style={styles.addContactText}>+ Add Emergency Contact</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Safety Instructions */}
-      <View style={styles.instructionsSection}>
-        <Text style={styles.sectionTitle}>Emergency Instructions</Text>
-        <View style={styles.instructionCard}>
-          <View style={styles.instructionStep}>
-            <Text style={styles.stepNumber}>1</Text>
-            <Text style={styles.stepText}>Stay calm and assess the situation</Text>
-          </View>
-          <View style={styles.instructionStep}>
-            <Text style={styles.stepNumber}>2</Text>
-            <Text style={styles.stepText}>Use panic button if in immediate danger</Text>
-          </View>
-          <View style={styles.instructionStep}>
-            <Text style={styles.stepNumber}>3</Text>
-            <Text style={styles.stepText}>Call appropriate emergency service</Text>
-          </View>
-          <View style={styles.instructionStep}>
-            <Text style={styles.stepNumber}>4</Text>
-            <Text style={styles.stepText}>Share your location with contacts</Text>
+        {/* Quick Actions */}
+        <View style={styles.quickActionsSection}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionGrid}>
+            <TouchableOpacity style={styles.actionButton} onPress={shareLocation}>
+              <MapPin size={24} color={locationSharing ? "#10B981" : "#6B7280"} />
+              <Text style={[styles.actionText, locationSharing && { color: '#10B981' }]}>
+                {locationSharing ? 'Stop Sharing' : 'Share Location'}
+              </Text>
+              <Text style={styles.actionSubtext}>
+                {locationSharing ? 'Active' : 'With contacts'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton}>
+              <Users size={24} color="#4F46E5" />
+              <Text style={styles.actionText}>Find Help</Text>
+              <Text style={styles.actionSubtext}>Nearby assistance</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton}>
+              <Shield size={24} color="#F59E0B" />
+              <Text style={styles.actionText}>Safe Mode</Text>
+              <Text style={styles.actionSubtext}>Enhanced tracking</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton}>
+              <Phone size={24} color="#EF4444" />
+              <Text style={styles.actionText}>Add Contact</Text>
+              <Text style={styles.actionSubtext}>Emergency contact</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
+
+        {/* Emergency Contacts */}
+        <View style={styles.contactsSection}>
+          <Text style={styles.sectionTitle}>Emergency Services</Text>
+          {emergencyServices.map((contact) => (
+            <TouchableOpacity
+              key={contact.id}
+              style={styles.contactCard}
+              onPress={() => handleEmergencyCall(contact)}
+            >
+              <View style={styles.contactIcon}>
+                {getContactIcon(contact.type)}
+              </View>
+              <View style={styles.contactInfo}>
+                <Text style={styles.contactName}>{contact.name}</Text>
+                <View style={styles.contactDetails}>
+                  <Text style={styles.contactNumber}>{contact.number}</Text>
+                  {contact.available247 && (
+                    <View style={styles.availableBadge}>
+                      <Text style={styles.availableText}>24/7</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+              <Phone size={20} color="#4F46E5" />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Personal Emergency Contacts */}
+        <View style={styles.personalContactsSection}>
+          <Text style={styles.sectionTitle}>Personal Contacts</Text>
+          {personalContacts.map((contact, index) => (
+            <View key={index} style={styles.personalContactCard}>
+              <Users size={16} color="#6B7280" />
+              <Text style={styles.personalContactText}>{contact}</Text>
+            </View>
+          ))}
+          <TouchableOpacity style={styles.addContactButton}>
+            <Text style={styles.addContactText}>+ Add Emergency Contact</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Safety Instructions */}
+        <View style={styles.instructionsSection}>
+          <Text style={styles.sectionTitle}>Emergency Instructions</Text>
+          <View style={styles.instructionCard}>
+            <View style={styles.instructionStep}>
+              <Text style={styles.stepNumber}>1</Text>
+              <Text style={styles.stepText}>Stay calm and assess the situation</Text>
+            </View>
+            <View style={styles.instructionStep}>
+              <Text style={styles.stepNumber}>2</Text>
+              <Text style={styles.stepText}>Use panic button if in immediate danger</Text>
+            </View>
+            <View style={styles.instructionStep}>
+              <Text style={styles.stepNumber}>3</Text>
+              <Text style={styles.stepText}>Call appropriate emergency service</Text>
+            </View>
+            <View style={styles.instructionStep}>
+              <Text style={styles.stepNumber}>4</Text>
+              <Text style={styles.stepText}>Share your location with contacts</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -252,6 +296,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 40 // so last section isn’t cut off
   },
   header: {
     paddingHorizontal: 20,
