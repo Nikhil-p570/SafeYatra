@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Share } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Share,Linking } from 'react-native';
 import { Phone, Route, Share2, Shield } from 'lucide-react-native';
 import * as Location from 'expo-location';
 
@@ -10,11 +10,13 @@ export default function QuickActions() {
       'This will call emergency services immediately. Continue?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Call 100', onPress: () => {} }
+        {
+          text: 'Call 100',
+          onPress: () => Linking.openURL('tel:100')
+        }
       ]
     );
   };
-
   const handleSafeRoute = () => {
     Alert.alert('Safe Route', 'Finding the safest route to your destination...');
   };
