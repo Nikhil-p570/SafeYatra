@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { MapPin, Shield, Phone, User } from 'lucide-react-native';
+import { MapPin, Shield, Phone, User, Camera } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -31,6 +31,15 @@ export default function TabLayout() {
           ),
         }}
       />
+        <Tabs.Screen
+          name="detection"
+          options={{
+            title: 'Detection',
+            tabBarIcon: ({ size, color }) => (
+              <Camera size={size} color={color} />
+            ),
+          }}
+        />
       <Tabs.Screen
         name="dashboard"
         options={{

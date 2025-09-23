@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Shield, TriangleAlert as AlertTriangle, TrendingUp, MapPin, Route, Bell } from 'lucide-react-native';
+import * as Location from 'expo-location';
 
 interface SafetyMetric {
   id: string;
@@ -112,6 +113,32 @@ export default function DashboardScreen() {
     );
   };
 
+  const shareLocation = async () => {
+    try {
+      // Ask for permission
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required to share your location.');
+        return;
+      }
+
+      // Get current position
+      let location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      // Create a Google Maps link
+      const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+      // Share via system share sheet
+      await Share.share({
+        message: `Here’s my current location: ${locationUrl}`,
+      });
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Unable to fetch or share location.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -170,7 +197,7 @@ export default function DashboardScreen() {
               <Route size={24} color="#4F46E5" />
               <Text style={styles.actionText}>Safe Routes</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity style={styles.actionButton} onPress={shareLocation}>
               <MapPin size={24} color="#10B981" />
               <Text style={styles.actionText}>Share Location</Text>
             </TouchableOpacity>
@@ -221,19 +248,35 @@ export default function DashboardScreen() {
           ))}
         </View>
 
-        {/* Safety Tips */}
+                {/* Safety Tips */}
         <View style={styles.tipsContainer}>
           <Text style={styles.sectionTitle}>Safety Tips</Text>
+
           <View style={styles.tipCard}>
             <Text style={styles.tipTitle}>Stay Alert in Crowded Areas</Text>
             <Text style={styles.tipText}>
               Keep your belongings secure and be aware of your surroundings, especially in tourist hotspots.
             </Text>
           </View>
+
           <View style={styles.tipCard}>
             <Text style={styles.tipTitle}>Weather Precautions</Text>
             <Text style={styles.tipText}>
               Check weather forecasts regularly and avoid travel during severe weather conditions.
+            </Text>
+          </View>
+
+          <View style={styles.tipCard}>
+            <Text style={styles.tipTitle}>Emergency Contacts</Text>
+            <Text style={styles.tipText}>
+              Save local emergency numbers and share your live location with trusted contacts when traveling.
+            </Text>
+          </View>
+
+          <View style={styles.tipCard}>
+            <Text style={styles.tipTitle}>Safe Travel</Text>
+            <Text style={styles.tipText}>
+              Prefer well-lit, busy routes at night and avoid isolated shortcuts whenever possible.
             </Text>
           </View>
         </View>
