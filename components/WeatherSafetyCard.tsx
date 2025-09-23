@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Thermometer, AlertTriangle, CheckCircle, Snowflake, Sun } from 'lucide-react-native';
+import { Thermometer, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Snowflake, Sun } from 'lucide-react-native';
 import type { WeatherAlert } from '@/services/weatherService';
 
 interface WeatherSafetyCardProps {
