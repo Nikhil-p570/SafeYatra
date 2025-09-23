@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Location from 'expo-location';
 import { MapPin, Navigation, TriangleAlert as AlertTriangle, Eye, Cloud } from 'lucide-react-native';
 import MapView from '@/components/MapView';
 import LocationHeader from '@/components/LocationHeader';
