@@ -6,6 +6,8 @@ import MapView from '@/components/MapView';
 import LocationHeader from '@/components/LocationHeader';
 import AlertBadge from '@/components/AlertBadge';
 import QuickActions from '@/components/QuickActions';
+import WeatherSafetyCard from '@/components/WeatherSafetyCard';
+import { weatherService, type WeatherAlert, type WeatherData } from '@/services/weatherService';
 
 interface DangerZone {
   id: string;
@@ -76,15 +78,20 @@ export default function HomeScreen() {
     address: 'Loading location...'
   });
   const [activeAlerts, setActiveAlerts] = useState(3);
-  const [weather, setWeather] = useState({
-    temp: '28°C',
-    condition: 'Partly Cloudy',
-    alert: 'Heat Warning'
-  });
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherAlert, setWeatherAlert] = useState<WeatherAlert | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getCurrentLocation();
+    loadWeatherData();
   }, []);
+
+  useEffect(() => {
+    if (currentLocation.latitude && currentLocation.longitude) {
+      loadWeatherData();
+    }
+  }, [currentLocation.latitude, currentLocation.longitude]);
 
   const getCurrentLocation = async () => {
     try {
@@ -121,6 +128,49 @@ export default function HomeScreen() {
         ...prev,
         address: 'Location unavailable'
       }));
+    }
+  };
+
+  const loadWeatherData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get current weather
+      const currentWeather = await weatherService.getCurrentWeather(
+        currentLocation.latitude,
+        currentLocation.longitude
+      );
+      
+      if (currentWeather) {
+        setWeatherData(currentWeather);
+        
+        // Get historical weather for comparison
+        const historicalWeather = await weatherService.getHistoricalWeather(
+          currentLocation.latitude,
+          currentLocation.longitude,
+          7 // Last 7 days
+        );
+        
+        const historicalAvg = historicalWeather ? 
+          weatherService.calculateHistoricalAverage(historicalWeather) : undefined;
+        
+        // Generate weather alert
+        const alert = weatherService.generateWeatherAlert(
+          currentWeather.current.temp_c,
+          historicalAvg
+        );
+        
+        setWeatherAlert(alert);
+        
+        // Update active alerts count based on weather severity
+        if (alert.severity === 'extreme' || alert.severity === 'high') {
+          setActiveAlerts(prev => prev + 1);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading weather data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,9 +229,27 @@ export default function HomeScreen() {
           <AlertBadge count={activeAlerts} type="warning" />
           <View style={styles.weatherContainer}>
             <Cloud size={20} color="#4F46E5" />
-            <Text style={styles.weatherText}>{weather.temp} • {weather.condition}</Text>
+            <Text style={styles.weatherText}>
+              {weatherData ? `${weatherData.current.temp_c}°C • ${weatherData.current.condition.text}` : 'Loading...'}
+            </Text>
           </View>
         </View>
+
+        {/* Weather Safety Alert */}
+        {weatherAlert && (
+          <View style={styles.weatherSafetyContainer}>
+            <WeatherSafetyCard 
+              weatherAlert={weatherAlert}
+              onPress={() => {
+                Alert.alert(
+                  'Weather Details',
+                  `Current: ${weatherData?.current.temp_c}°C\nFeels like: ${weatherData?.current.feelslike_c}°C\nHumidity: ${weatherData?.current.humidity}%\nWind: ${weatherData?.current.wind_kph} km/h`,
+                  [{ text: 'OK' }]
+                );
+              }}
+            />
+          </View>
+        )}
 
         <View style={styles.mapContainer}>
           <MapView 
@@ -269,6 +337,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4F46E5',
     marginLeft: 4,
+  },
+  weatherSafetyContainer: {
+    paddingHorizontal: 20,
   },
   mapContainer: {
     height: 300,
