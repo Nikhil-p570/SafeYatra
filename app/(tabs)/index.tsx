@@ -7,6 +7,7 @@ import LocationHeader from '@/components/LocationHeader';
 import AlertBadge from '@/components/AlertBadge';
 import QuickActions from '@/components/QuickActions';
 import WeatherSafetyCard from '@/components/WeatherSafetyCard';
+import * as Location from 'expo-location';
 import { weatherService, type WeatherAlert, type WeatherData } from '@/services/weatherService';
 
 interface DangerZone {
@@ -95,28 +96,29 @@ export default function HomeScreen() {
 
   const getCurrentLocation = async () => {
     try {
-      const { coords } = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 30000,
-          maximumAge: 60000
-        });
-      });
-
-      const { latitude, longitude } = coords;
-      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setCurrentLocation(prev => ({
+          ...prev,
+          address: 'Permission denied'
+        }));
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
+      const latitude = loc.coords.latitude;
+      const longitude = loc.coords.longitude;
       // Reverse geocoding to get address
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
       );
       const data = await response.json();
-      
-      const address = data.city && data.countryName 
-        ? `${data.city}, ${data.countryName}`
-        : data.locality && data.countryName
-        ? `${data.locality}, ${data.countryName}`
+      const address = data.city && data.principalSubdivision && data.countryName
+        ? `${data.city}, ${data.principalSubdivision}, ${data.countryName}`
+        : data.locality && data.principalSubdivision && data.countryName
+        ? `${data.locality}, ${data.principalSubdivision}, ${data.countryName}`
+        : data.countryName
+        ? data.countryName
         : `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-
       setCurrentLocation({
         latitude,
         longitude,
@@ -126,7 +128,9 @@ export default function HomeScreen() {
       console.error('Error getting location:', error);
       setCurrentLocation(prev => ({
         ...prev,
-        address: 'Location unavailable'
+        address: prev && typeof prev.latitude === 'number' && typeof prev.longitude === 'number'
+          ? `${prev.latitude.toFixed(4)}, ${prev.longitude.toFixed(4)}`
+          : 'Location unavailable'
       }));
     }
   };
