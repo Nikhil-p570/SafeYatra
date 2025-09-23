@@ -73,7 +73,7 @@ export default function HomeScreen() {
   const [currentLocation, setCurrentLocation] = useState({
     latitude: 28.6139,
     longitude: 77.2090,
-    address: 'New Delhi, India'
+    address: 'Loading location...'
   });
   const [activeAlerts, setActiveAlerts] = useState(3);
   const [weather, setWeather] = useState({
@@ -81,6 +81,48 @@ export default function HomeScreen() {
     condition: 'Partly Cloudy',
     alert: 'Heat Warning'
   });
+
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
+
+  const getCurrentLocation = async () => {
+    try {
+      const { coords } = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        });
+      });
+
+      const { latitude, longitude } = coords;
+      
+      // Reverse geocoding to get address
+      const response = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+      );
+      const data = await response.json();
+      
+      const address = data.city && data.countryName 
+        ? `${data.city}, ${data.countryName}`
+        : data.locality && data.countryName
+        ? `${data.locality}, ${data.countryName}`
+        : `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+      setCurrentLocation({
+        latitude,
+        longitude,
+        address
+      });
+    } catch (error) {
+      console.error('Error getting location:', error);
+      setCurrentLocation(prev => ({
+        ...prev,
+        address: 'Location unavailable'
+      }));
+    }
+  };
 
   const handleLocationUpdate = (location: any) => {
     setCurrentLocation(location);
@@ -129,7 +171,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <LocationHeader 
         location={currentLocation.address}
-        onLocationPress={() => {}}
+        onLocationPress={getCurrentLocation}
       />
       
       <ScrollView showsVerticalScrollIndicator={false}>
