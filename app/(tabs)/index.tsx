@@ -91,7 +91,7 @@ export default function HomeScreen() {
       const { coords } = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 30000,
           maximumAge: 60000
         });
       });
