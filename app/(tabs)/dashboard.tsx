@@ -111,7 +111,7 @@ export default function DashboardScreen() {
       'Generating safe routes avoiding high-risk areas...',
       [{ text: 'OK' }]
     );
-  };
+  }
 
   const shareLocation = async () => {
     try {

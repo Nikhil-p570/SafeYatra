@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Share } from 'react-native';
 import { Phone, Route, Share2, Shield } from 'lucide-react-native';
+import * as Location from 'expo-location';
 
 export default function QuickActions() {
   const handleEmergencyCall = () => {
@@ -18,8 +19,30 @@ export default function QuickActions() {
     Alert.alert('Safe Route', 'Finding the safest route to your destination...');
   };
 
-  const handleShareLocation = () => {
-    Alert.alert('Share Location', 'Sharing your live location with emergency contacts...');
+  const handleShareLocation = async () => {
+    try {
+      // Ask for permission
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required to share your location.');
+        return;
+      }
+
+      // Get current position
+      let location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      // Create a Google Maps link
+      const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+      // Share via system share sheet
+      await Share.share({
+        message: `Here’s my current location: ${locationUrl}`,
+      });
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Unable to fetch or share location.');
+    }
   };
 
   const handleSafeMode = () => {
@@ -82,6 +105,7 @@ export default function QuickActions() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
