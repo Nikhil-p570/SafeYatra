@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Share,Linking } from 'react-native';
 import { Phone, Route, Share2, Shield } from 'lucide-react-native';
+import * as Location from 'expo-location';
 
 export default function QuickActions() {
   const handleEmergencyCall = () => {
@@ -22,16 +23,19 @@ export default function QuickActions() {
 
   const handleShareLocation = async () => {
     try {
-      // Use browser's geolocation for faster response
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: 5000,
-          maximumAge: 300000 // 5 minutes cache
-        });
+      // Request location permissions
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required to share your location.');
+        return;
+      }
+
+      // Get current location using Expo Location API
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
       });
 
-      const { latitude, longitude } = position.coords;
+      const { latitude, longitude } = location.coords;
       const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
       await Share.share({
@@ -39,7 +43,7 @@ export default function QuickActions() {
       });
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Unable to get location quickly. Please try again.');
+      Alert.alert('Error', 'Unable to share location. Please try again.');
     }
   };
 
