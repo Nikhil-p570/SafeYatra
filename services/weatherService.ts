@@ -64,8 +64,9 @@ class WeatherService {
   async getHistoricalWeather(latitude: number, longitude: number, days: number = 7): Promise<HistoricalWeatherData | null> {
     try {
       const endDate = new Date();
+      endDate.setDate(endDate.getDate() - 1); // Set to yesterday
       const startDate = new Date();
-      startDate.setDate(endDate.getDate() - days);
+      startDate.setDate(endDate.getDate() - days + 1); // Adjust to maintain the requested number of days
       
       const response = await fetch(
         `${this.baseUrl}/history.json?key=${this.apiKey}&q=${latitude},${longitude}&dt=${startDate.toISOString().split('T')[0]}&end_dt=${endDate.toISOString().split('T')[0]}`
