@@ -30,47 +30,8 @@ interface TouristAttraction {
   safetyLevel: 'safe' | 'caution' | 'danger';
 }
 
-const sampleDangerZones: DangerZone[] = [
-  {
-    id: '1',
-    name: 'High Crime Area - Old Delhi',
-    type: 'crime',
-    latitude: 28.6562,
-    longitude: 77.2410,
-    radius: 1000,
-    alertLevel: 'high'
-  },
-  {
-    id: '2', 
-    name: 'Flood Risk - Yamuna Banks',
-    type: 'natural',
-    latitude: 28.6304,
-    longitude: 77.2177,
-    radius: 2000,
-    alertLevel: 'medium'
-  }
-];
-
-const sampleAttractions: TouristAttraction[] = [
-  {
-    id: '1',
-    name: 'India Gate',
-    type: 'Monument',
-    latitude: 28.6129,
-    longitude: 77.2295,
-    rating: 4.5,
-    safetyLevel: 'safe'
-  },
-  {
-    id: '2',
-    name: 'Red Fort',
-    type: 'Historical',
-    latitude: 28.6562,
-    longitude: 77.2410,
-    rating: 4.3,
-    safetyLevel: 'caution'
-  }
-];
+const sampleDangerZones: DangerZone[] = [];
+const sampleAttractions: TouristAttraction[] = [];
 
 export default function HomeScreen() {
   const [currentLocation, setCurrentLocation] = useState({
@@ -184,26 +145,7 @@ export default function HomeScreen() {
   };
 
   const checkGeofencing = (location: any) => {
-    const nearbyDangerZone = sampleDangerZones.find(zone => {
-      const distance = calculateDistance(
-        location.latitude,
-        location.longitude,
-        zone.latitude,
-        zone.longitude
-      );
-      return distance <= zone.radius;
-    });
-
-    if (nearbyDangerZone) {
-      Alert.alert(
-        'Safety Alert!',
-        `You are entering a ${nearbyDangerZone.alertLevel} risk area: ${nearbyDangerZone.name}. Please exercise caution.`,
-        [
-          { text: 'View Safe Routes', onPress: () => {} },
-          { text: 'OK', style: 'default' }
-        ]
-      );
-    }
+    // Geofencing logic removed since we don't have real danger zones
   };
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -265,34 +207,6 @@ export default function HomeScreen() {
         </View>
 
         <QuickActions />
-
-        <View style={styles.attractionsContainer}>
-          <Text style={styles.sectionTitle}>Nearby Attractions</Text>
-          {sampleAttractions.map((attraction) => (
-            <TouchableOpacity key={attraction.id} style={styles.attractionCard}>
-              <View style={styles.attractionInfo}>
-                <View style={styles.attractionHeader}>
-                  <Text style={styles.attractionName}>{attraction.name}</Text>
-                  <View style={[
-                    styles.safetyIndicator,
-                    { backgroundColor: attraction.safetyLevel === 'safe' ? '#10B981' : 
-                                     attraction.safetyLevel === 'caution' ? '#F59E0B' : '#EF4444' }
-                  ]} />
-                </View>
-                <Text style={styles.attractionType}>{attraction.type}</Text>
-                <View style={styles.attractionStats}>
-                  <Text style={styles.rating}>★ {attraction.rating}</Text>
-                  <Text style={styles.distance}>2.3 km away</Text>
-                </View>
-              </View>
-              <View style={styles.attractionActions}>
-                <TouchableOpacity style={styles.directionButton}>
-                  <Navigation size={16} color="#4F46E5" />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
 
         <View style={styles.recentAlertsContainer}>
           <Text style={styles.sectionTitle}>Recent Safety Alerts</Text>
@@ -357,73 +271,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
   },
-  attractionsContainer: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#1F2937',
     marginBottom: 12,
-  },
-  attractionCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  attractionInfo: {
-    flex: 1,
-  },
-  attractionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  attractionName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  safetyIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  attractionType: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  attractionStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rating: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#F59E0B',
-    marginRight: 12,
-  },
-  distance: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  attractionActions: {
-    justifyContent: 'center',
-  },
-  directionButton: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: 8,
-    padding: 8,
   },
   recentAlertsContainer: {
     paddingHorizontal: 20,

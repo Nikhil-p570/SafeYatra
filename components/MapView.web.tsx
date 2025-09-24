@@ -1,38 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
-
-interface DangerZone {
-  id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  radius: number;
-  alertLevel: "high" | "medium" | "low";
-}
-
-interface Attraction {
-  id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  safetyLevel: "safe" | "caution" | "danger";
-}
+import { Navigation } from "lucide-react-native";
 
 export default function MapScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Example data
-  const dangerZones: DangerZone[] = [
-    { id: "1", name: "Flood Zone", latitude: 28.62, longitude: 77.21, radius: 500, alertLevel: "high" },
-    { id: "2", name: "Crime Hotspot", latitude: 28.61, longitude: 77.22, radius: 300, alertLevel: "medium" },
-  ];
-
-  const attractions: Attraction[] = [
-    { id: "a1", name: "India Gate", latitude: 28.6129, longitude: 77.2295, safetyLevel: "safe" },
-    { id: "a2", name: "Connaught Place", latitude: 28.6315, longitude: 77.2167, safetyLevel: "caution" },
-  ];
 
   useEffect(() => {
     (async () => {
@@ -47,6 +20,18 @@ export default function MapScreen() {
       setLoading(false);
     })();
   }, []);
+
+  const refreshLocation = async () => {
+    setLoading(true);
+    try {
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
+    } catch (error) {
+      console.error('Error refreshing location:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -76,6 +61,15 @@ export default function MapScreen() {
         <Text style={styles.placeholderText}>
           Use the mobile app for full map functionality.
         </Text>
+        
+        {/* Center Button for Web */}
+        <TouchableOpacity 
+          style={styles.centerButton}
+          onPress={refreshLocation}
+        >
+          <Navigation size={20} color="#4F46E5" />
+          <Text style={styles.centerButtonText}>Refresh Location</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Location Info */}
@@ -88,53 +82,9 @@ export default function MapScreen() {
           Longitude: {location.coords.longitude.toFixed(4)}
         </Text>
       </View>
-
-      {/* Danger Zones List */}
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Danger Zones</Text>
-        {dangerZones.map((zone) => (
-          <View key={zone.id} style={styles.listItem}>
-            <Text style={styles.itemName}>{zone.name}</Text>
-            <Text style={[styles.alertLevel, { color: getAlertColor(zone.alertLevel) }]}>
-              {zone.alertLevel.toUpperCase()}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Attractions List */}
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Nearby Attractions</Text>
-        {attractions.map((attraction) => (
-          <View key={attraction.id} style={styles.listItem}>
-            <Text style={styles.itemName}>{attraction.name}</Text>
-            <Text style={[styles.safetyLevel, { color: getSafetyColor(attraction.safetyLevel) }]}>
-              {attraction.safetyLevel.toUpperCase()}
-            </Text>
-          </View>
-        ))}
-      </View>
     </View>
   );
 }
-
-const getAlertColor = (level: string) => {
-  switch (level) {
-    case "high": return "#EF4444";
-    case "medium": return "#F59E0B";
-    case "low": return "#10B981";
-    default: return "#6B7280";
-  }
-};
-
-const getSafetyColor = (safety: string) => {
-  switch (safety) {
-    case "safe": return "#10B981";
-    case "caution": return "#F59E0B";
-    case "danger": return "#EF4444";
-    default: return "#6B7280";
-  }
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -168,6 +118,21 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     textAlign: "center",
     marginVertical: 2,
+  },
+  centerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 16,
+  },
+  centerButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
   },
   infoSection: {
     backgroundColor: "#FFFFFF",

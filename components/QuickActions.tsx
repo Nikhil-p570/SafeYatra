@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Share,Linking } from 'react-native';
 import { Phone, Route, Share2, Shield } from 'lucide-react-native';
-import * as Location from 'expo-location';
 
 export default function QuickActions() {
   const handleEmergencyCall = () => {
@@ -23,27 +22,24 @@ export default function QuickActions() {
 
   const handleShareLocation = async () => {
     try {
-      // Ask for permission
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location permission is required to share your location.');
-        return;
-      }
+      // Use browser's geolocation for faster response
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 300000 // 5 minutes cache
+        });
+      });
 
-      // Get current position
-      let location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = location.coords;
-
-      // Create a Google Maps link
+      const { latitude, longitude } = position.coords;
       const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-      // Share via system share sheet
       await Share.share({
         message: `Here’s my current location: ${locationUrl}`,
       });
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Unable to fetch or share location.');
+      Alert.alert('Error', 'Unable to get location quickly. Please try again.');
     }
   };
 
