@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MapPin, Shield, Phone, User, Camera,Home } from 'lucide-react-native';
+import { MapPin, Shield, Phone, User, Camera, Chrome as Home } from 'lucide-react-native';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
