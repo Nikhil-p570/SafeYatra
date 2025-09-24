@@ -42,7 +42,7 @@ interface WeatherAlert {
 
 class WeatherService {
   private apiKey = '4f8ebf272c4a4053a9f43525252208';
-  private baseUrl = 'http://api.weatherapi.com/v1';
+  private baseUrl = 'https://api.weatherapi.com/v1';
 
   async getCurrentWeather(latitude: number, longitude: number): Promise<WeatherData | null> {
     try {
