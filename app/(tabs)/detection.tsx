@@ -85,7 +85,7 @@ export default function Detection() {
       const mockResult: AnalysisResult = {
         id: Date.now().toString(),
         confidence: Math.floor(Math.random() * 40) + 60, // Random confidence between 60-99%
-        label: ['Apple', 'Orange', 'Banana', 'Grape', 'Strawberry'][Math.floor(Math.random() * 5)],
+        label: ['Mountain','Desert'][Math.floor(Math.random() * 5)],
         timestamp: new Date(),
       };
 
